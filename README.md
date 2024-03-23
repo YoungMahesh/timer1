@@ -15,3 +15,13 @@ sudo rm /usr/local/bin/timer1
 ```
 
 
+### commands
+
+```bash
+timer1 start project1  # start timer for a new project
+
+timer1 ls   # print time elapsed for currently running project
+
+# print time elapsed for currently project and stop/delete current project 
+timer1 stop  
+```

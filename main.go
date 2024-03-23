@@ -3,88 +3,99 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 )
 
+const timerFile = "timer.txt"
+
 var rootCmd = &cobra.Command{
-	Use:   "app",
-	Short: "app is a simple CLI application",
+	Use:   "Timer1",
+	Short: "Timer1 is a simple CLI application to track time spent on a certain project",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Hello World!")
+		println("timer1 start <project-name>")
+		println("timer1 ls")
+		println("timer1 stop")
 	},
 }
 
-var addCmd = &cobra.Command{
-	Use:   "add",
-	Short: "Add a new project",
+var startCmd = &cobra.Command{
+	Use:   "start",
+	Short: "Start a timer for a project",
+	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		projectName := strings.Join(args, " ")
-		f, err := os.OpenFile("projects.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		if _, err := os.Stat(timerFile); err == nil {
+			fmt.Println("A timer is already running; Please stop the current timer before starting a new one.")
+			return
+		}
+		projectName := args[0]
+		startTime := time.Now().Unix()
+		data := fmt.Sprintf("%s\n%d", projectName, startTime)
+		err := os.WriteFile(timerFile, []byte(data), 0644)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		defer f.Close()
-
-		if _, err := f.WriteString(projectName + "\n"); err != nil {
-			fmt.Println(err)
-			return
-		}
-		fmt.Println("Added project: ", projectName)
+		fmt.Printf("Started timer for project: %s\n", projectName)
 	},
+}
+
+func timerDetails() (*string, int, int) {
+	data, err := os.ReadFile(timerFile)
+	if err != nil {
+		fmt.Println("No timer is currently running.")
+		return nil, 0, 0
+	}
+	lines := strings.Split(string(data), "\n")
+	projectName := lines[0]
+	startTime, err := strconv.ParseInt(lines[1], 10, 64)
+	if err != nil {
+		fmt.Println("Error parssing timer info: ", err)
+		fmt.Println("Stop current timer to remove the error")
+		return nil, 0, 0
+	}
+	elapsed := time.Since(time.Unix(startTime, 0))
+	elapsedMinutes := int(elapsed.Minutes())
+	elapsedSeconds := int(elapsed.Seconds()) % 60 // remaining seconds after minutes
+
+	return &projectName, elapsedMinutes, elapsedSeconds
 }
 
 var listCmd = &cobra.Command{
 	Use:   "ls",
-	Short: "List all projects",
+	Short: "List currently running timer",
+	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
-		data, err := os.ReadFile("projects.txt")
-		if err != nil {
-			fmt.Println(err)
-			return
+		projectName, elapsedMinutes, elapsedSeconds := timerDetails()
+		if projectName != nil {
+			details := fmt.Sprintf("Project: %s, elapsed time: %d minutes %d seconds \n", *projectName, elapsedMinutes, elapsedSeconds)
+			println(details)
 		}
-		fmt.Println(string(data))
 	},
 }
 
-var removeCmd = &cobra.Command{
-	Use:   "rm",
-	Short: "Remove a project",
+var stopCmd = &cobra.Command{
+	Use:   "stop",
+	Short: "Stop currently running timer",
+	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) == 0 {
-			fmt.Println("Please provide a project name to remove")
-
+		projectName, elapsedMinutes, elapsedSeconds := timerDetails()
+		if projectName != nil {
+			details := fmt.Sprintf("Project: %s, elapsed time: %d minutes %d seconds \n", *projectName, elapsedMinutes, elapsedSeconds)
+			println(details)
 		}
-		projectName := args[0]
-		data, err := os.ReadFile("projects.txt")
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		projects := strings.Split(string(data), "\n")
-		for i, project := range projects {
-			if project == projectName {
-				projects = append(projects[:i], projects[i+1:]...)
-				break
-			}
-		}
-
-		output := strings.Join(projects, "\n")
-		err = os.WriteFile("projects.txt", []byte(output), 0644)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		fmt.Println("Removed project: ", projectName)
+		os.Remove(timerFile)
+		println("Succesfully stopped project:", *projectName)
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(addCmd)
+	rootCmd.AddCommand(startCmd)
 	rootCmd.AddCommand(listCmd)
-	rootCmd.AddCommand(removeCmd)
+	rootCmd.AddCommand(stopCmd)
 }
 
 func main() {
