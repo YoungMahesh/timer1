@@ -53,8 +53,7 @@ func timerDetails() (*string, int, int) {
 	projectName := lines[0]
 	startTime, err := strconv.ParseInt(lines[1], 10, 64)
 	if err != nil {
-		fmt.Println("Error parssing timer info: ", err)
-		fmt.Println("Stop current timer to remove the error")
+		fmt.Printf("Error parsing timer info: %v\nStop current timer to remove the error\n", err)
 		return nil, 0, 0
 	}
 	elapsed := time.Since(time.Unix(startTime, 0))
@@ -86,9 +85,9 @@ var stopCmd = &cobra.Command{
 		if projectName != nil {
 			details := fmt.Sprintf("Project: %s, elapsed time: %d minutes %d seconds \n", *projectName, elapsedMinutes, elapsedSeconds)
 			println(details)
+			println("Succesfully stopped project:", *projectName)
 		}
 		os.Remove(timerFile)
-		println("Succesfully stopped project:", *projectName)
 	},
 }
 
