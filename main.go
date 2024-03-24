@@ -10,7 +10,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const timerFile = "timer.txt"
+var timerFileDir = os.Getenv("HOME") + "/.timer1/"
+var timerFile = timerFileDir + "timer.txt"
 
 var rootCmd = &cobra.Command{
 	Use:   "Timer1",
@@ -34,7 +35,19 @@ var startCmd = &cobra.Command{
 		projectName := args[0]
 		startTime := time.Now().Unix()
 		data := fmt.Sprintf("%s\n%d", projectName, startTime)
-		err := os.WriteFile(timerFile, []byte(data), 0644)
+		// os.MkdirAll creates a directory named timerFileDir, along with any necessary parents.
+		// The second argument, 0600, sets the file mode: owner can read and write,
+		//   but the file is not executable and not accessible by others.
+		// 0600 is an octal number, each digit represents the permission for the owner, group, and others,
+		//   in that order.
+		// leading 0 indicates an octal number.
+		// 6 is the sum of 4 (read) and 2 (write), so 0600 means read and write for the owner.
+		err := os.MkdirAll(timerFileDir, 0600)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		err = os.WriteFile(timerFile, []byte(data), 0600)
 		if err != nil {
 			fmt.Println(err)
 			return

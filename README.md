@@ -18,6 +18,7 @@ sudo mv ./timer1 /usr/local/bin
 
 # uninstall app
 sudo rm /usr/local/bin/timer1
+rm -rf ~/.timer1
 ```
 
 ### commands
