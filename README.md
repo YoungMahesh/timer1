@@ -5,7 +5,7 @@
 ### compile app
 
 ```bash
-go build -o timer1
+go build -o timer
 
 # execute `./timer1` to check if app is working as expected
 ```
@@ -14,20 +14,22 @@ go build -o timer1
 
 ```bash
 # install app (move compiled script to /usr/local/bin)
-sudo mv ./timer1 /usr/local/bin
+sudo mv ./timer /usr/local/bin
 
 # uninstall app
-sudo rm /usr/local/bin/timer1
+sudo rm /usr/local/bin/timer
 rm -rf ~/.timer1
 ```
 
 ### commands
 
 ```bash
-timer1 start project1  # start timer for a new project
+timer1 start <project-name> # start timer
+timer start xyz  # start timer for a new project named "xyz"
 
-timer1 ls   # print time elapsed for currently running project
+timer ls   # print time elapsed for currently running project
 
-# print time elapsed for currently project and stop/delete current project
-timer1 stop
+timer restart  # restart currently stopped project
+
+timer stop  # start current project
 ```
