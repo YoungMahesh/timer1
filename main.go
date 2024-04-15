@@ -98,10 +98,6 @@ var editCmd = &cobra.Command{
 			return
 		}
 		editInfo := args[0]
-		if len(editInfo) < 2 {
-			println(errMsg1)
-			return
-		}
 		minutes, err := strconv.Atoi(editInfo)
 		if err != nil {
 			println(errMsg1)
@@ -118,11 +114,15 @@ var editCmd = &cobra.Command{
 		}
 
 		lastSession := sessions[len(sessions)-1]
+		if lastSession[1] == 0 {
+			println("Last session is currently running. Stop the session to edit time.")
+			return
+		}
 		if minutes < 0 {
-			// add negative minutes from endTime to remove time
+			// add negative minutes to endTime to remove time
 			lastSession[1] += int64(minutes * 60)
 		} else {
-			// remove positive minutes from startTime to add time
+			// minus positive minutes from startTime to add time
 			lastSession[0] -= int64(minutes * 60)
 		}
 		sessions[len(sessions)-1] = lastSession
