@@ -29,7 +29,10 @@ timer start xyz  # start timer for a new project named "xyz"
 
 timer ls   # print time elapsed for currently running project
 
-timer restart  # restart currently stopped project
+timer edit 10  # add 10 minutes to currently running session
+timer edit -15  # remove 15 minutes from currently running sesion
 
 timer stop  # start current project
+
+timer restart  # restart currently stopped project
 ```
