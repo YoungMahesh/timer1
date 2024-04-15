@@ -33,10 +33,15 @@ func printSessions(sessions [][2]int64) {
 		if stopTime0 == 0 {
 			stopTime = time.Unix(time.Now().Unix(), 0)
 		}
+		// timeFormat := "15:04:05" // 24-hour format
+		timeFormat := "03:04:05 PM" // 12-hour format
+		startTimeInLocal := startTime.Local()
+		stopTimeInLocal := stopTime.Local()
 		elapsed := stopTime.Sub(startTime)
 		elapsedMinutes := int(elapsed.Minutes())
 		elapsedSeconds := int(elapsed.Seconds()) % 60 // remaining seconds after minutes
-		details := fmt.Sprintf("Sesssion %d: %d minutes %d seconds", idx+1, elapsedMinutes, elapsedSeconds)
+		details := fmt.Sprintf("Sesssion %d: %s - %s (%d minutes %d seconds)", idx+1, startTimeInLocal.Format(timeFormat), stopTimeInLocal.Format(timeFormat), elapsedMinutes, elapsedSeconds)
+		// details := fmt.Sprintf("Sesssion %d: %d minutes %d seconds", idx+1, elapsedMinutes, elapsedSeconds)
 		println(details)
 		totalTime += elapsed
 	}
